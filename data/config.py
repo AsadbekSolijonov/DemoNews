@@ -8,7 +8,7 @@ env.read_env()
 # Bot
 BOT_TOKEN = env.str("BOT_TOKEN")  # BOT TOKEN
 ADMINS = env.list("ADMINS")  # admins list
-IP = env.str("ip")  # host api address
+IP = env.str("IP")  # host api address
 
 # Postgresql
 DB_USER = env.str('DB_USER')
