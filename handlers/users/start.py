@@ -1,18 +1,18 @@
 import logging
 import hashlib
 import asyncpg
+
 from loader import dp, db
 from aiogram import types
 from datetime import datetime
 from aiogram.dispatcher.filters.builtin import CommandStart
-from aiogram.types import (ReplyKeyboardMarkup,
-                           KeyboardButton,
-                           ReplyKeyboardRemove)
+from keyboards.default.phone import put_phone_keyboard
+from aiogram.types import ReplyKeyboardRemove
 
 
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):
-    # Weekday
+    # Changing from datetime to the Weekday by strftime method
     today = datetime.now().strftime('%A')
 
     try:
@@ -29,22 +29,19 @@ async def bot_start(message: types.Message):
         # hash256 phone_number
         user_phone = db_phone['phone_number']
 
-    # ReplyKeyboard for Share phone number
-    contact_btn = ReplyKeyboardMarkup(resize_keyboard=True)
-    contact = KeyboardButton('Share Phone number', request_contact=True)
-    contact_btn.add(contact)
-
-    # Sending  Sticker
+    # Sending Sticker
     await message.answer_sticker(sticker='CAACAgIAAxkBAAGu7-VkMHjLOwldl2rsz4rz4jNGE7-adAAC0QADUomRI4TjSsB06wL9LwQ')
     # Text
     text = (f"👋 Today is {today}",
             f"🤗 Welcome, {message.from_user.full_name}!")
     if user_phone:
-        # Message
+        # Send Message
         await message.answer(text='\n'.join(text))
     else:
-        # Message
-        await message.answer(text='\n'.join(text), reply_markup=contact_btn)
+        # This is keyboard for Sharing phone number
+        keyboard = put_phone_keyboard()
+        # Send Message
+        await message.answer(text='\n'.join(text), reply_markup=keyboard)
 
 
 @dp.message_handler(content_types=types.ContentType.CONTACT)
@@ -59,7 +56,7 @@ async def phone_handler(message: types.Message):
     await db.update_phone(chat_id=message.chat.id, phone_number=hash_phone)
     # taking weather_time field from Database by user_id
     current_weather_time = await db.select_weather_time(chat_id=user_id)
-    # Parsing 
+    # Parsing time
     just_time = str(current_weather_time['weather_time'])[:5]
     # Text
     text = ('☺️ Thank you for your phone number\n',
@@ -71,5 +68,5 @@ async def phone_handler(message: types.Message):
             "🤔 If you want to change the WEATHER time, resend the correct time.",
             f"👋 Today is {today}",
             f"🕔 Weather updates come daily at {just_time}")
-    # Message
+    # Send Message
     await message.answer(text='\n'.join(text), reply_markup=ReplyKeyboardRemove())
