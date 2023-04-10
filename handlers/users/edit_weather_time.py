@@ -7,7 +7,7 @@ from datetime import datetime
 from aiogram.dispatcher import FSMContext
 
 from states.edit_weather_time import StateWeatherTime
-from keyboards.inline.yes_no_inlineKeyboard import yes_no
+from keyboards.inline.yes_no import yes_no
 
 
 @dp.message_handler(commands=['setting_weather_time'])
@@ -30,8 +30,9 @@ async def edit_weather_time(message: types.Message):
             "21:00 - Nine in the evening",
             "00:00 - Midnight\n",
             f"🕔 Weather updates come daily at {just_time}",)
-    # Message
-    await message.reply(text='\n'.join(text))
+    text = '\n'.join(text)
+    # Send Message
+    await message.reply(text=text)
 
     # Statement
     await StateWeatherTime.weather_time.set()
@@ -46,7 +47,7 @@ async def check_time(message, state):
     current_weather_time = await db.select_weather_time(chat_id=user_id)
     # Parsing time format time(00:00:00) to str(00:00)
     just_time = str(current_weather_time['weather_time'])[:5]
-    # Checking the regular Expression (Regex)
+    # Checking time by the regular Expression (Regex)
     if re.match(pattern, message.text):
         # Saving time value to FSMContext
         async with state.proxy() as data:
@@ -55,11 +56,15 @@ async def check_time(message, state):
         text = (f'👋 Today is {datetime.now().strftime("%A")}',
                 f'🕔 Weather updates come daily at {just_time}. But\n',
                 f'🌦 Would you like to receive daily weather updates at {message.text} ?',)
-        # Message
-        await message.reply(text='\n'.join(text), reply_markup=yes_no())
+        text = '\n'.join(text)
+        # This is inline button `yes` and `no` for confirm time
+        inline_keyboard = yes_no()
+        # Send Message
+        await message.reply(text=text, reply_markup=inline_keyboard)
         # Statement
         await StateWeatherTime.confirm.set()
     else:
+        # Text
         text = (f"❌ I didn`t get it: \n",
                 f"🤖 Commands:",
                 f"/start - Start the bot",
@@ -68,8 +73,9 @@ async def check_time(message, state):
                 f"/current_weather - Current weather data",
                 f"🤔 If you want to change the WEATHER time, resend the correct time.\n",
                 f"🕔 Weather updates come daily at {just_time}")
-        # Message
-        await message.reply(text='\n'.join(text))
+        text = '\n'.join(text)
+        # Send Message
+        await message.reply(text=text)
         # Statement finish
         await state.finish()
 
@@ -77,14 +83,14 @@ async def check_time(message, state):
 @dp.message_handler(state=StateWeatherTime.weather_time)
 async def regex_time(message: types.Message, state: FSMContext):
     # Statement
-    # check the time format from (00:00) to (23:59)
+    # checking the time format from (00:00) to (23:59)
     await check_time(message, state)
 
 
 @dp.message_handler(state=None)
 async def bot_echo(message: types.Message, state: FSMContext):
     # No Statement
-    # Check the time format from (00:00) to (23:59)
+    # Checking the time format from (00:00) to (23:59)
     await check_time(message, state)
 
 
@@ -105,23 +111,29 @@ async def confirm_time(call: types.CallbackQuery, state: FSMContext):
     if conf_data == 'yes':
         # Parsing from str(time) to datetime(time) and saving to database
         await db.update_weather_time(time=datetime.strptime(text_time, '%H:%M').time(), user_id=user_id)
-        # Alert
+        # Text
         alert_text = f"🕔 {text_time} saved!"
+        # Send Alert Message
         await call.answer(text=alert_text, cache_time=60000)
-        # Message
+        # Text
         message_text = f'🕔 {text_time} saved!'
+        # Send Message
         await call.message.answer(text=message_text)
 
     elif conf_data == 'no':
-        # Alert
+        # Text
         alert_text = f"⚠️ {text_time} not save"
+        # Send Alert Message
         await call.answer(text=alert_text, cache_time=60000)
-        # Message
+        # Text
         message_text = f'⚠️ {text_time} didn`t save!'
+        # Send Message
         await call.message.answer(text=message_text)
-        # Message
+        # Text
         answer_text = (f"👋 Today is {datetime.now().strftime('%A')}",
                        f"🕔 Weather updates come daily at {just_time}")
-        await call.message.answer(text='\n'.join(answer_text))
+        answer_text = '\n'.join(answer_text)
+        # Send Message
+        await call.message.answer(text=answer_text)
     # Statement finish
     await state.finish()
