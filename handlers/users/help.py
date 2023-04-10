@@ -11,5 +11,5 @@ async def bot_help(message: types.Message):
             "/help - Help",
             "/setting_weather_time - Setting the weather time",
             "/current_weather - Current weather data")
-    # Message
+    # Send Message
     await message.answer("\n".join(text))
