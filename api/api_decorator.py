@@ -5,6 +5,10 @@ def try_except(function):
     """
 
     def wrapper(*args, **kwargs):
+        """
+        This decorator prevents the program
+        from crashing if some fields are invalid keys.
+        """
         try:
             result = function(*args, **kwargs)
             return result
