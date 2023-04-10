@@ -1,1 +1,1 @@
-from . import yes_no_inlineKeyboard
+from . import yes_no
