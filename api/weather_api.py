@@ -1,8 +1,10 @@
+import datetime
 from pprint import pprint
 
 from data import config
 import requests
 from api.api_decorator import try_except
+from loader import db
 
 
 class WeatherApiNews:
@@ -95,3 +97,48 @@ class WeatherApiNews:
         return Cloudiness, %
         """
         return self.response['clouds']
+
+    @classmethod
+    @try_except
+    async def weather_text(cls, lat, lon, chat_id):
+        if not (lat and lon):
+            # taking coordinate (lat, lon) from database by chat_id
+            coord = await db.select_lat_lon(chat_id)
+            # unpacking tuple (lat, lon)
+            lat, lon = coord['lat'], coord['lon']
+
+        # Response from Weather API
+        ####################################################
+        if lat and lon:
+            weather_response = cls(lat=lat, lon=lon)
+            # Place name
+            place_name = weather_response.place_name
+            sys_info = weather_response.sys_info
+            main = weather_response.main
+            weather = weather_response.weather
+            wind = weather_response.wind
+            rain = weather_response.rain
+            snow = weather_response.snow
+            clouds = weather_response.clouds
+            # time_zone = weather_response.response['timezone']
+            ###################################################
+            # Text
+            text = [f"🌤 Weather | 🌤 Weather | 🌤 ",
+                    f"📍 Location {place_name} ",
+                    # f"Timezone: {datetime.datetime.fromtimestamp(time_zone).strftime('%H:%M')}",
+                    f"Country: {sys_info['country']}",
+                    f"Sunrise: {datetime.datetime.fromtimestamp(sys_info['sunrise']).strftime('%H:%M')}",
+                    f"Sunset: {datetime.datetime.fromtimestamp(sys_info['sunset']).strftime('%H:%M')}",
+                    f"Description: {', '.join([weather[index]['description'] for index in range(len(weather))])}",
+                    f"Clouds: {clouds['all']} %",
+                    f"Main: {', '.join([weather[index]['main'] for index in range(len(weather))])}",
+                    f"Temperature: {round(main['temp'] - 273.15, 0)} °С",
+                    f"Humidity: {main['humidity']} %",
+                    f"Wind Speed: {wind['speed']} m/s",
+                    f"{f'Snow: {snow}' if snow else ''}",
+                    f"{f'Rain: {rain}' if rain else ''}",
+                    f"This weather forecast is valid for the same time",
+                    ]
+            text_f = '\n'.join(text)
+
+            return text_f

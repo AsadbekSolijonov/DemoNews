@@ -12,7 +12,7 @@ async def send_sport_news():
     for user_id, _ in datas:
         # Text
         text = f'⛳️ Sport News\n\n{text.__next__()}'
-        # Message
+        # Send Message
         await bot.send_message(chat_id=user_id, text=text)
 
 
@@ -26,5 +26,5 @@ async def update_sport_news():
         min_ = datetime_.minute
         sec_ = datetime_.second
         # AsyncIO Sleep 1 hour and wake up
-        # await asyncio.sleep(3600 - ((min_ * 60) + sec_))
-        await asyncio.sleep(5)
+        await asyncio.sleep(3600 - ((min_ * 60) + sec_))
+        # await asyncio.sleep(5)
