@@ -14,7 +14,7 @@ async def on_startup(dispatcher):
     #  db connection
     await db.connect_pool()
     # drop table
-    await db.drop_table()
+    # await db.drop_table()
     # create table users if not exists
     await db.create_table_users()
     # Birlamchi komandalar (/star va /help)
