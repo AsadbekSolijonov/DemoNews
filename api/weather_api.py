@@ -124,6 +124,7 @@ class WeatherApiNews:
             ###################################################
             # Text
             text = [f"🌤 Weather | 🌤 Weather | 🌤 ",
+                    f"This weather forecast is valid for the same time",
                     f"📍 Location {place_name} ",
                     # f"Timezone: {datetime.datetime.fromtimestamp(time_zone).strftime('%H:%M')}",
                     f"Country: {sys_info['country']}",
@@ -137,7 +138,6 @@ class WeatherApiNews:
                     f"Wind Speed: {wind['speed']} m/s",
                     f"{f'Snow: {snow}' if snow else ''}",
                     f"{f'Rain: {rain}' if rain else ''}",
-                    f"This weather forecast is valid for the same time",
                     ]
             text_f = '\n'.join(text)
 
