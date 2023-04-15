@@ -49,8 +49,7 @@ class SportApiNews:
     @try_except
     def yield_text(self):
         if self.status == 'ok':
-            for i in range(self.total_results):
-                article = self.articles[i]
+            for article in self.articles:
                 text = (f"Author: {article['author']}",
                         f"Content: {article['content']}",
                         f"Description: {article['description']}",
