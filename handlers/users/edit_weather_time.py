@@ -26,7 +26,7 @@ async def edit_weather_time(message: types.Message):
             "we will send you an update in time.\n",
             "🕔 Time Format:",
             "09:00 - nine in the morning",
-            "12:00 - Obet Time",
+            "12:00 - Lunch Time",
             "21:00 - Nine in the evening",
             "00:00 - Midnight\n",
             f"🕔 Weather updates come daily at {just_time}",)
